@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheAirBlow.Thor.Shell", "TheAirBlow.Thor.Shell\TheAirBlow.Thor.Shell.csproj", "{407C63A2-8CEF-4A0A-A9C6-BB022018EEB2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheAirBlow.Thor.Library", "TheAirBlow.Thor.Library\TheAirBlow.Thor.Library.csproj", "{359B7A5B-449A-4371-B79A-277FE1779731}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{407C63A2-8CEF-4A0A-A9C6-BB022018EEB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{407C63A2-8CEF-4A0A-A9C6-BB022018EEB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{407C63A2-8CEF-4A0A-A9C6-BB022018EEB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{407C63A2-8CEF-4A0A-A9C6-BB022018EEB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{359B7A5B-449A-4371-B79A-277FE1779731}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{359B7A5B-449A-4371-B79A-277FE1779731}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{359B7A5B-449A-4371-B79A-277FE1779731}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{359B7A5B-449A-4371-B79A-277FE1779731}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
