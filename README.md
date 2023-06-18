@@ -42,27 +42,27 @@ Fun fact: Official Odin for Linux works using DevFS, and people report it workin
 <details>
   <summary>Flash an odin archive</summary>
   <br>
-  <img src="https://github.com/Samsung-Loki/Thor/assets/68467762/cb32aadb-c01c-474e-9d31-5fd6e704b846"/>
+  <video src="https://github.com/Samsung-Loki/Thor/assets/68467762/cb32aadb-c01c-474e-9d31-5fd6e704b846"/>
 </details>
 <details>
   <summary>Flash a single partition</summary>
   <br>
-  <img src="https://github.com/Samsung-Loki/Thor/assets/68467762/f8f7e1dc-8c14-44c0-aaa7-85cf0c5cd024"/>
+  <video src="https://github.com/Samsung-Loki/Thor/assets/68467762/f8f7e1dc-8c14-44c0-aaa7-85cf0c5cd024"/>
 </details>
 <details>
   <summary>Print description of a device's partition table</summary>
   <br>
-  <img src="https://github.com/Samsung-Loki/Thor/assets/68467762/0e1a3335-71ea-45e7-bbcd-a61a553f4943"/>
+  <video src="https://github.com/Samsung-Loki/Thor/assets/68467762/0e1a3335-71ea-45e7-bbcd-a61a553f4943"/>
 </details>
 <details>
   <summary>Dump device's partition table into a PIT file</summary>
   <br>
-  <img src="https://github.com/Samsung-Loki/Thor/assets/68467762/ef6a5a67-c902-4af1-8de8-b5bbe4a3e9ef"/>
+  <video src="https://github.com/Samsung-Loki/Thor/assets/68467762/ef6a5a67-c902-4af1-8de8-b5bbe4a3e9ef"/>
 </details>
 <details>
   <summary>Print description of any PIT file</summary>
   <br>
-  <img src="https://github.com/Samsung-Loki/Thor/assets/68467762/4d4f3ccc-380a-4557-93fa-a2cc1ee698bc"/>
+  <video src="https://github.com/Samsung-Loki/Thor/assets/68467762/4d4f3ccc-380a-4557-93fa-a2cc1ee698bc"/>
 </details>
 
 ## What devices were tested?
