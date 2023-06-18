@@ -38,7 +38,7 @@ This is a rewrite of Thor written from scratch, so I could implement the native 
 Also, the old codebase was severely flawed in my opinion. I archived it [here](https://github.com/Samsung-Loki/LegacyThor/).
 
 ## Credits
-[TheAirBlow](https://github.com/theairblow) for Thor Flash Utility
+[TheAirBlow](https://github.com/theairblow) for Thor Flash Utility \
 [Benjamin-Dobell](https://github.com/Benjamin-Dobell) for documenting much of the Odin protocol
 
 ## This project is licenced under
