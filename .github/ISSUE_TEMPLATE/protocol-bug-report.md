@@ -25,7 +25,7 @@ To get the "full logs", scroll up to the first message in Thor, select it's star
 <full debug log here>
 ```
 
-## Hardware
+## Hardware and software
  - OS of the computer used: [e.g. Linux]
  - Model of the device: [e.g. SM-G355H/DS]
 
