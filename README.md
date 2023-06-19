@@ -66,8 +66,8 @@ Fun fact: Official Odin for Linux works using DevFS, and people report it workin
 </details>
 
 ## What devices were tested?
-Me personally tested only SM-G355H, which is old, but do not worry. \
-The Odin protocol never introduced any major changes, so it should work.
+1) SM-M205FN/DS from 2019 `0x00030000` (Unknown1: 0, Unknown2: 0, Version: 3)
+2) SM-G355H/DS from 2014 `0x00020000` (Unknown1: 0, Unknown2: 0, Version: 2)
 
 ## Frequently Asked Questions
 1) A fatal error occurred. The required library *something* could not be found. \
