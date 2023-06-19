@@ -87,10 +87,10 @@ public class FlashTar : ICommand {
                                         task.Value(info.SentBytes);
                                         switch (info.State) {
                                             case Odin.FlashProgressInfo.StateEnum.Flashing:
-                                                task.Description($"[green]Flashing sequence {info.SequenceIndex} / {info.TotalSequences} onto {pitEntry.Partition}[/]");
+                                                task.Description($"[green]Flashing sequence {info.SequenceIndex + 1} / {info.TotalSequences} onto {pitEntry.Partition}[/]");
                                                 break;
                                             case Odin.FlashProgressInfo.StateEnum.Sending:
-                                                task.Description($"[green]Sending flash sequence {info.SequenceIndex} / {info.TotalSequences}[/]");
+                                                task.Description($"[green]Sending flash sequence {info.SequenceIndex + 1} / {info.TotalSequences}[/]");
                                                 break;
                                         }
                                     });
