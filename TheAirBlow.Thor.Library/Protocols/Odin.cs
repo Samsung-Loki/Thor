@@ -40,7 +40,9 @@ public class Odin {
         var buf = new byte[1024];
         buf.WriteInt(0x64, 0);
         buf.WriteInt(0x00, 4);
-        buf.WriteInt(0x01, 8);
+        // Write the proto version to be the max value
+        // So it would basically catch-all BL versions
+        buf.WriteInt(int.MaxValue, 8);
         _handler.BulkWrite(buf);
         buf = _handler.BulkRead(8, out var read);
         if (read != 8) throw new InvalidDataException(
@@ -54,7 +56,7 @@ public class Odin {
             })
         };
         var version = buf.ReadInt(4);
-        Log.Debug("Bootloader version integer 0x{0:X4}", version);
+        Log.Debug("Bootloader version integer 0x{0:X8}", version);
         Log.Debug("Unknown1: {0}, Unknown2: {1}, Version: {2}",
             Version.Unknown1, Version.Unknown2, Version.Version);
         switch (Version.Version) {
@@ -63,26 +65,10 @@ public class Odin {
                 FlashPacketSize = 131072;  // 128 KiB
                 FlashSequence = 240;       // 30 MB
                 break;
-            case 2:
+            case >= 2:
                 FlashTimeout = 120000;     // 2 minutes
                 FlashPacketSize = 1048576; // 1 MiB
                 FlashSequence = 30;        // 30 MiB
-                break;
-            case >= 3:
-                // Read the max file part size
-                buf = new byte[1024];
-                buf.WriteInt(0x64, 0);
-                buf.WriteInt(0x06, 4);
-                _handler.BulkWrite(buf);
-                buf = _handler.BulkRead(8, out read);
-                if (read != 8) throw new InvalidDataException(
-                    $"Received {read} bytes instead of 8!");
-                buf.OdinFailCheck("ReadMaxPacket");
-                var max = buf.ReadInt(4);
-                Log.Debug("Max file part size: {0}", max);
-                FlashTimeout = 120000;           // 2 minutes
-                FlashPacketSize = max;           // Depends
-                FlashSequence = 31457280 / max;  // ~50 MB
                 break;
         }
 
