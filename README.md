@@ -18,12 +18,13 @@ We're a team of teens (at age of 14-15) making random projects for fun.
 
 ## How's it different from Heimdall?
 Fun fact: Official Odin for Linux works using DevFS, and people report it working when Heimdall didn't.
-1) Ability to shutdown and reboot into Odin mode (not supported on every device)
+1) Is able to do NAND Erase All (aka erase userdata) and erase any partition, given the length.
+2) Ability to shutdown and reboot into Odin mode (not supported on every device)
 3) Not using a USB transfer library and doing it natively for best results
 4) Extended the PIT parser with new information being discovered
 5) Can flash directly from an Odin `.tar` / `.tar.md5` archive
 6) Works with `.lz4` files directly without manual extraction
-5) Implemented EFS Clear and Bootloader Update options in Odin
+7) Implemented EFS Clear and Bootloader Update options in Odin
 
 ## Current list of commands
 ![Commands](https://github.com/Samsung-Loki/Thor/assets/68467762/01526ec4-ff64-4308-8ff4-46af9e5aa0c1)
