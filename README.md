@@ -25,6 +25,7 @@ Fun fact: Official Odin for Linux works using DevFS, and people report it workin
 5) Can flash directly from an Odin `.tar` / `.tar.md5` archive
 6) Works with `.lz4` files directly without manual extraction
 7) Implemented EFS Clear and Bootloader Update options in Odin
+8) Is able to change the sales code of the device
 
 ## Current list of commands
 ![Commands](https://github.com/Samsung-Loki/Thor/assets/68467762/01526ec4-ff64-4308-8ff4-46af9e5aa0c1)
