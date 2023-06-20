@@ -11,9 +11,21 @@ public static class Extensions {
         return buf;
     }
 
-    public static void OdinFailCheck(this byte[] buf, string id) {
-        if (buf[0] == 0xFF) throw new InvalidDataException(
-            $"Request failed, got 0xFF ({id})!");
+    public static void OdinFailCheck(this byte[] buf, string id, bool end = false) {
+        if (buf[0] != 0xFF) return;
+        var error = buf.ReadInt(4);
+        var str = $"{id} received 0xFF (code 0x{error:X4})";
+        if (end)
+            str = error switch {
+                -7 => $"{id} received 0xFF (code 0x{error:X4}, Ext4)",
+                -6 => $"{id} received 0xFF (code 0x{error:X4}, Size)",
+                -5 => $"{id} received 0xFF (code 0x{error:X4}, Auth)",
+                -4 => $"{id} received 0xFF (code 0x{error:X4}, Write)",
+                -3 => $"{id} received 0xFF (code 0x{error:X4}, Erase)",
+                -2 => $"{id} received 0xFF (code 0x{error:X4}, WP)",
+                _ => str
+            };
+        throw new InvalidDataException(str);
     }
 
     public static string ReadString(this BinaryReader reader, int count)

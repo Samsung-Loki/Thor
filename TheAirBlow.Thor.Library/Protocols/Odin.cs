@@ -399,7 +399,7 @@ public class Odin {
             buf = _handler.BulkRead(8, out read, FlashTimeout);
             if (read != 8) throw new InvalidDataException(
                 $"Received {read} bytes instead of 8!");
-            buf.OdinFailCheck($"EndSequenceFlash/{i}");
+            buf.OdinFailCheck($"EndSequenceFlash/{i}", true);
         }
 
         // Reset flash count
