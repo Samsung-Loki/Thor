@@ -4,7 +4,7 @@
 ![badges](https://img.shields.io/github/issues/Samsung-Loki/Thor.svg)
 # Thor Flash Utility
 This is a flash utility for Samsung devices, made from scratch in C#. \
-To run this, you must have .NET 8 runtime installed on your computer. \
+To run this, you must have .NET 7 runtime installed on your computer. \
 **This tool was tested and works flawlessly, I'm open for any bug reports.**
 
 ## Support me
