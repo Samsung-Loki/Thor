@@ -13,7 +13,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()
     .CreateLogger();
-AnsiConsole.MarkupLine("[green]Welcome to Thor Shell v1.0.2![/]");
+AnsiConsole.MarkupLine("[green]Welcome to Thor Shell v1.0.3![/]");
 if (!USB.TryGetHandler(out var handler)) {
     AnsiConsole.MarkupLine("[red]A USB handler wasn't written for your platform![/]");
     AnsiConsole.MarkupLine($"[red]Currently supported platforms: {USB.GetSupported()}.[/]");
@@ -43,10 +43,11 @@ AnsiConsole.MarkupLine($"[yellow]{handler.GetNotes()}[/]");
 
 // Load in all commands
 Dictionary<string, ICommand> commands = new() {
-    { "debug", new EnableDebug() },
-    { "connect", new Connect() },
-    { "printPit", new PrintPIT() },
     { "disconnect", new Disconnect() },
+    { "printPit", new PrintPIT() },
+    { "debug", new EnableDebug() },
+    { "devParse", new DevParse() },
+    { "connect", new Connect() },
     { "write", new RawWrite() },
     { "read", new RawRead() },
     { "begin", new Begin() },

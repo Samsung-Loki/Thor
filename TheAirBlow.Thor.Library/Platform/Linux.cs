@@ -48,87 +48,102 @@ public class Linux : IHandler, IDisposable {
     private bool _detached;
     private bool _writeZlp;
 
-    public void Initialize(string id) {
-        id = id.Replace(":", "/");
-        var path = $"/dev/bus/usb/{id}";
-        if (!File.Exists(path))
-            throw new InvalidOperationException("Device disconnected?");
+    public void Initialize(string? id, byte[]? direct = null) {
+        Stream? file; var path = "";
+        if (id != null) {
+            id = id.Replace(":", "/");
+            path = $"/dev/bus/usb/{id}";
+            if (!File.Exists(path))
+                throw new InvalidOperationException("Device disconnected?");
+            file = new FileStream(path, FileMode.Open, FileAccess.Read);
+        } else if (direct != null) file = new MemoryStream(direct);
+        else throw new InvalidDataException("ID or Direct should not be null");
+        
         var found = false;
-        using (var file = new FileStream(path, FileMode.Open, FileAccess.Read)) {
-            using var reader = new BinaryReader(file);
-            // USB_DT_DEVICE usb_device_descriptor struct:
-            // https://github.com/torvalds/linux/blob/master/include/uapi/linux/usb/ch9.h#L289
+        using var reader = new BinaryReader(file);
+        // USB_DT_DEVICE usb_device_descriptor struct:
+        // https://github.com/torvalds/linux/blob/master/include/uapi/linux/usb/ch9.h#L289
+        file.Seek(1, SeekOrigin.Current);
+        if (reader.ReadByte() != 0x01)
+            throw new InvalidDataException("USB_DT_DEVICE assertion fail!");
+        file.Seek(6, SeekOrigin.Current);
+        if (reader.ReadInt16() != USB.Vendor)
+            throw new InvalidDataException("This is not a Samsung device!");
+        file.Seek(7, SeekOrigin.Current);
+        var configs = reader.ReadByte();
+        Log.Debug("Number of configurations: {0}", configs);
+        // USB_DT_CONFIG usb_config_descriptor struct:
+        // https://github.com/torvalds/linux/blob/master/include/uapi/linux/usb/ch9.h#L349
+        file.Seek(1, SeekOrigin.Current);
+        if (reader.ReadByte() != 0x02)
+            throw new InvalidDataException("USB_DT_CONFIG assertion fail!");
+        file.Seek(2, SeekOrigin.Current);
+        var numInterfaces = (int)reader.ReadByte();
+        file.Seek(4, SeekOrigin.Current);
+        Log.Debug("Number of interfaces: {0}", numInterfaces);
+        // USB_DT_INTERFACE usb_interface_descriptor struct:
+        // https://github.com/torvalds/linux/blob/master/include/uapi/linux/usb/ch9.h#L388
+        for (var i = 0; i < numInterfaces; i++) {
+            var validity = true;
+            Log.Debug("~~~~ Interface index {0} ~~~~", i);
             file.Seek(1, SeekOrigin.Current);
-            if (reader.ReadByte() != 0x01)
-                throw new InvalidDataException("USB_DT_DEVICE assertion fail!");
-            file.Seek(6, SeekOrigin.Current);
-            if (reader.ReadInt16() != USB.Vendor)
-                throw new InvalidDataException("This is not a Samsung device!");
-            file.Seek(8, SeekOrigin.Current);
-            // USB_DT_CONFIG usb_config_descriptor struct:
-            // https://github.com/torvalds/linux/blob/master/include/uapi/linux/usb/ch9.h#L349
-            file.Seek(1, SeekOrigin.Current);
-            if (reader.ReadByte() != 0x02)
-                throw new InvalidDataException("USB_DT_CONFIG assertion fail!");
-            file.Seek(2, SeekOrigin.Current);
-            var numInterfaces = (int)reader.ReadByte();
-            file.Seek(4, SeekOrigin.Current);
-            Log.Debug("Number of interfaces: {0}", numInterfaces);
-            // USB_DT_INTERFACE usb_interface_descriptor struct:
-            // https://github.com/torvalds/linux/blob/master/include/uapi/linux/usb/ch9.h#L388
-            for (var i = 0; i < numInterfaces; i++) {
-                Log.Debug("~~~~ Interface index {0} ~~~~", i);
-                file.Seek(1, SeekOrigin.Current);
-                if (reader.ReadByte() != 0x04)
-                    throw new InvalidDataException("USB_DT_INTERFACE assertion fail!");
-                _interface = reader.ReadByte();
-                file.Seek(1, SeekOrigin.Current);
-                var numEndpoints = (int)reader.ReadByte();
-                Log.Debug("Number of endpoints: {0}", numEndpoints);
-                var clss = reader.ReadByte();
-                Log.Debug("Interface class: 0x{0:X2}", clss);
-                if (clss == 0x02) {
-                    Log.Debug("!! Found USB_CLASS_COMM");
-                    file.Seek(19, SeekOrigin.Current);
-                }
-                file.Seek(3, SeekOrigin.Current);
-                // USB_DT_ENDPOINT usb_endpoint_descriptor struct:
-                // https://github.com/torvalds/linux/blob/master/include/uapi/linux/usb/ch9.h#L407
-                _readEndpoint = null; _writeEndpoint = null;
-                for (var j = 0; j < numEndpoints; j++) {
-                    Log.Debug("$$ Endpoint index {0} $$", j);
-                    file.Seek(1, SeekOrigin.Current);
-                    if (reader.ReadByte() != 0x05)
-                        throw new InvalidDataException("USB_DT_ENDPOINT assertion fail!");
-                    var addr = reader.ReadByte();
-                    Log.Debug("Endpoint address: 0x{0:X2}", addr);
-
-                    if ((reader.ReadByte() & 0x03) != 0x02) {
-                        file.Seek(3, SeekOrigin.Current);
-                        Log.Debug("!! USB_ENDPOINT_XFER_BULK fail");
-                        continue; // Not USB_ENDPOINT_XFER_BULK
-                    }
-                    
-                    if (addr > 0x80)
-                        _readEndpoint = addr;
-                    else _writeEndpoint = addr;
-                    file.Seek(3, SeekOrigin.Current);
-                }
-                
-                // Class is USB_CLASS_CDC_DATA, found valid read and write endpoints
-                found = clss == 0x0a && _readEndpoint.HasValue && _writeEndpoint.HasValue;
-                if (found) {
-                    Log.Debug("> Interface is valid, exiting");
-                    break;
-                } 
-                
-                Log.Debug("!! Interface is invalid, continuing");
+            byte val;
+            if ((val = reader.ReadByte()) != 0x04) {
+                Log.Debug("!! USB_DT_INTERFACE fail (value = {0:X2})", val);
+                validity = false;
             }
+            _interface = reader.ReadByte();
+            file.Seek(1, SeekOrigin.Current);
+            var numEndpoints = (int)reader.ReadByte();
+            Log.Debug("Number of endpoints: {0}", numEndpoints);
+            var clss = reader.ReadByte();
+            Log.Debug("Interface class: 0x{0:X2}", clss);
+            file.Seek(3, SeekOrigin.Current);
+            // USB_DT_ENDPOINT usb_endpoint_descriptor struct:
+            // https://github.com/torvalds/linux/blob/master/include/uapi/linux/usb/ch9.h#L407
+            _readEndpoint = null; _writeEndpoint = null;
+            for (var j = 0; j < numEndpoints; j++) {
+                Log.Debug("$$ Endpoint index {0} $$", j);
+                var len = reader.ReadByte();
+                var type = reader.ReadByte();
+                if (type == 0x24) {
+                    Log.Debug("!! Class-dependant descriptor, skipping (len = {0} - 2)", len);
+                    file.Seek(len - 2, SeekOrigin.Current); j--; continue;
+                }
+                if (type != 0x05) {
+                    Log.Debug("!! USB_DT_ENDPOINT fail (value = {0:X2})", type);
+                    validity = false;
+                }
+                var addr = reader.ReadByte();
+                Log.Debug("Endpoint address: 0x{0:X2}", addr);
+                if (((val = reader.ReadByte()) & 0x03) != 0x02) {
+                    Log.Debug("!! USB_ENDPOINT_XFER_BULK fail (value = {0:X2})", val);
+                    validity = false;
+                }
+                    
+                if (addr > 0x80)
+                    _readEndpoint = addr;
+                else _writeEndpoint = addr;
+                file.Seek(3, SeekOrigin.Current);
+            }
+                
+            // Class is USB_CLASS_CDC_DATA, found valid read / write endpoints and types are valid
+            found = clss == 0x0a && _readEndpoint.HasValue && _writeEndpoint.HasValue && validity;
+            if (found) {
+                Log.Debug("> Interface is valid, exiting");
+                break;
+            } 
+                
+            Log.Debug("!! Interface is invalid, continuing");
         }
-
+        
+        file.Dispose();
         if (!found) throw new InvalidOperationException("Failed to find valid endpoints!");
         Log.Debug("Interface: 0x{0:X2}, Read Endpoint: 0x{1:X2}, Write Endpoint: 0x{2:X2}",
             _interface, _readEndpoint, _writeEndpoint);
+
+        // Return in case of direct
+        if (direct != null) return;
         
         // Create a device file handle
         if ((_deviceFd = Interop.Open(path, Interop.O_RDWR)) < 0) {
@@ -293,16 +308,16 @@ public class Linux : IHandler, IDisposable {
         private static readonly int _IOC_DIRSHIFT = _IOC_SIZESHIFT + _IOC_SIZEBITS;
         private static uint _IO(uint type, uint nr)
             => (0U << _IOC_DIRSHIFT) | (type << _IOC_TYPESHIFT) 
-               | (nr << _IOC_NRSHIFT) | (0U << _IOC_SIZESHIFT);
+                                     | (nr << _IOC_NRSHIFT) | (0U << _IOC_SIZESHIFT);
         private static uint _IOWR(uint type, uint nr, uint size)
             => ((1U | 2U) << _IOC_DIRSHIFT) | (type << _IOC_TYPESHIFT) 
-               | (nr << _IOC_NRSHIFT) | (size << _IOC_SIZESHIFT);
+                                            | (nr << _IOC_NRSHIFT) | (size << _IOC_SIZESHIFT);
         private static uint _IOR(uint type, uint nr, uint size)
             => (2U << _IOC_DIRSHIFT) | (type << _IOC_TYPESHIFT) 
-               | (nr << _IOC_NRSHIFT) | (size << _IOC_SIZESHIFT);
+                                     | (nr << _IOC_NRSHIFT) | (size << _IOC_SIZESHIFT);
         private static uint _IOW(uint type, uint nr, uint size)
             => (1U << _IOC_DIRSHIFT) | (type << _IOC_TYPESHIFT) 
-               | (nr << _IOC_NRSHIFT) | (size << _IOC_SIZESHIFT);
+                                     | (nr << _IOC_NRSHIFT) | (size << _IOC_SIZESHIFT);
         public static uint USBDEVFS_BULK = _IOWR('U', 2, (uint)sizeof(BulkTransfer));
         public static uint USBDEVFS_IOCTL = _IOWR('U', 18, (uint)sizeof(UsbIoCtl));
         public static uint USBDEVFS_CLAIMINTERFACE = _IOR('U', 15, sizeof(uint));
