@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using Serilog;
 using TheAirBlow.Thor.Library.Communication;
@@ -108,7 +109,7 @@ public class Linux : IHandler, IDisposable {
                 var type = reader.ReadByte();
                 if (type == 0x24) {
                     Log.Debug("!! Class-dependant descriptor, skipping (len = {0} - 2)", len);
-                    file.Seek(len - 2, SeekOrigin.Current); j--; continue;
+                    file.Seek(len - 2, SeekOrigin.Current); continue;
                 }
                 if (type != 0x05) {
                     Log.Debug("!! USB_DT_ENDPOINT fail (value = {0:X2})", type);
@@ -144,14 +145,10 @@ public class Linux : IHandler, IDisposable {
 
         // Return in case of direct
         if (direct != null) return;
-        
+
         // Create a device file handle
-        if ((_deviceFd = Interop.Open(path, Interop.O_RDWR)) < 0) {
-            var error = Marshal.GetLastWin32Error();
-            var ptr = Interop.StrError(error);
-            var str = Marshal.PtrToStringUTF8(ptr);
-            throw new InvalidOperationException($"Failed to open the device for RW: {str} ({error})");
-        }
+        if ((_deviceFd = Interop.Open(path, Interop.O_RDWR)) < 0)
+            Interop.HandleError("Failed to open the device for RW");
         
         // Detach kernel driver if present
         var driver = new Interop.GetDriver {
@@ -165,23 +162,15 @@ public class Linux : IHandler, IDisposable {
                 Data = nint.Zero
             };
 
-            if (Interop.IoCtl(_deviceFd.Value, Interop.USBDEVFS_IOCTL, ref ioctl) < 0) {
-                var error = Marshal.GetLastWin32Error();
-                var ptr = Interop.StrError(error);
-                var str = Marshal.PtrToStringUTF8(ptr);
-                throw new InvalidOperationException($"Failed to detach kernel driver: {str} ({error})");
-            }
+            if (Interop.IoCtl(_deviceFd.Value, Interop.USBDEVFS_IOCTL, ref ioctl) < 0)
+                Interop.HandleError("Failed to detach kernel driver");
             
             _detached = true;
         }
 
         // Claim interface
-        if (Interop.IoCtl(_deviceFd.Value, Interop.USBDEVFS_CLAIMINTERFACE, ref _interface) < 0) {
-            var error = Marshal.GetLastWin32Error();
-            var ptr = Interop.StrError(error);
-            var str = Marshal.PtrToStringUTF8(ptr);
-            throw new InvalidOperationException($"Failed to claim interface: {str} ({error})");
-        }
+        if (Interop.IoCtl(_deviceFd.Value, Interop.USBDEVFS_CLAIMINTERFACE, ref _interface) < 0)
+            Interop.HandleError("Failed to claim interface");
 
         _connected = true;
     }
@@ -204,12 +193,8 @@ public class Linux : IHandler, IDisposable {
                 Data = bufPtr
             };
             
-            if (Interop.IoCtl(_deviceFd!.Value, Interop.USBDEVFS_BULK, ref bulk) < 0) {
-                var error = Marshal.GetLastWin32Error();
-                var ptr = Interop.StrError(error);
-                var str = Marshal.PtrToStringUTF8(ptr);
-                throw new InvalidOperationException($"Failed to bulk write: {str} ({error})");
-            }
+            if (Interop.IoCtl(_deviceFd!.Value, Interop.USBDEVFS_BULK, ref bulk) < 0)
+                Interop.HandleError("Failed to bulk write");
         }
 
         // Write ZLP, disable if failed
@@ -236,12 +221,8 @@ public class Linux : IHandler, IDisposable {
                 Data = bufPtr
             };
             
-            if ((read = Interop.IoCtl(_deviceFd!.Value, Interop.USBDEVFS_BULK, ref bulk)) < 0) {
-                var error = Marshal.GetLastWin32Error();
-                var ptr = Interop.StrError(error);
-                var str = Marshal.PtrToStringUTF8(ptr);
-                throw new InvalidOperationException($"Failed to bulk read: {str} ({error})");
-            }
+            if ((read = Interop.IoCtl(_deviceFd!.Value, Interop.USBDEVFS_BULK, ref bulk)) < 0)
+                Interop.HandleError("Failed to bulk read");
             
             var arr = new byte[read];
             Marshal.Copy(bufPtr, arr, 0, read);
@@ -264,12 +245,8 @@ public class Linux : IHandler, IDisposable {
     public void Dispose() {
         // Release the interface
         if (_connected && _deviceFd.HasValue)
-            if (Interop.IoCtl(_deviceFd.Value, Interop.USBDEVFS_RELEASEINTERFACE, ref _interface) < 0) {
-                var error = Marshal.GetLastWin32Error();
-                var ptr = Interop.StrError(error);
-                var str = Marshal.PtrToStringUTF8(ptr);
-                Log.Fatal("Failed to release interface, {0} ({1})", str, error);
-            }
+            if (Interop.IoCtl(_deviceFd.Value, Interop.USBDEVFS_RELEASEINTERFACE, ref _interface) < 0)
+                Interop.HandleError("Failed to release interface");
 
         // Attach the kernel driver back
         if (_detached) {
@@ -278,22 +255,13 @@ public class Linux : IHandler, IDisposable {
                 Interface = (int)_interface,
                 Data = nint.Zero
             };
-            if (Interop.IoCtl(_deviceFd.Value, Interop.USBDEVFS_IOCTL, ref ioctl) < 0) {
-                var error = Marshal.GetLastWin32Error();
-                var ptr = Interop.StrError(error);
-                var str = Marshal.PtrToStringUTF8(ptr);
-                throw new InvalidOperationException($"Failed to attach kernel driver: {str} ({error})");
-            }
+            if (Interop.IoCtl(_deviceFd!.Value, Interop.USBDEVFS_IOCTL, ref ioctl) < 0)
+                Interop.HandleError("Failed to attach kernel driver");
         }
         
         // Close device file handle
-        if (_deviceFd.HasValue)
-            if (Interop.Close(_deviceFd.Value) < 0) {
-                var error = Marshal.GetLastWin32Error();
-                var ptr = Interop.StrError(error);
-                var str = Marshal.PtrToStringUTF8(ptr);
-                Log.Fatal("Failed to close file descriptor: {0} ({1})", str, error);
-            }
+        if (_deviceFd.HasValue && Interop.Close(_deviceFd.Value) < 0)
+            Interop.HandleError("Failed to close device descriptor");
 
         _connected = false;
     }
@@ -367,5 +335,12 @@ public class Linux : IHandler, IDisposable {
         
         [DllImport("libc", EntryPoint = "strerror")]
         public static extern nint StrError(int code);
+        
+        public static void HandleError(string message) {
+            var error = Marshal.GetLastWin32Error();
+            var ptr = StrError(error);
+            var str = Marshal.PtrToStringUTF8(ptr);
+            throw new ApplicationException($"{message}: {str} ({error})");
+        }
     }
 }

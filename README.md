@@ -7,6 +7,11 @@ This is a flash utility for Samsung devices, made from scratch in C#. \
 To run this, you must have .NET 7 runtime installed on your computer. \
 **This tool was tested and works flawlessly, I'm open for any bug reports.**
 
+## Disclaimer
+1) You can't reuse the same USB connection after you close an Odin session, and you can't re-connect the device. You have to reboot each time.
+2) Do not use the Linux version under WSL or under a badly configured VM. Do not expect any support on those - it's a waste of time.
+3) Always try each option the platform-specific note tells you. In case of linux, try with cdc_asm disabled and enabled.
+
 ## Support me
 If you would like to support me and my team, donate [here](https://ko-fi.com/sussydev). \
 We're a team of teens (at age of 14-15) making random projects for fun.
