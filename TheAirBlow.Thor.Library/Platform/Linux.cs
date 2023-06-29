@@ -42,6 +42,7 @@ public class Linux : IHandler, IDisposable {
     }
 
     private uint _interface;
+    private uint _alternate;
     private uint? _readEndpoint;
     private uint? _writeEndpoint;
     private int? _deviceFd;
@@ -94,7 +95,7 @@ public class Linux : IHandler, IDisposable {
                 validity = false;
             }
             _interface = reader.ReadByte();
-            file.Seek(1, SeekOrigin.Current);
+            _alternate = reader.ReadByte();
             var numEndpoints = (int)reader.ReadByte();
             Log.Debug("Number of endpoints: {0}", numEndpoints);
             var clss = reader.ReadByte();
@@ -107,9 +108,10 @@ public class Linux : IHandler, IDisposable {
                 Log.Debug("$$ Endpoint index {0} $$", j);
                 var len = reader.ReadByte();
                 var type = reader.ReadByte();
-                if (type == 0x24) {
+                while (type == 0x24) {
                     Log.Debug("!! Class-dependant descriptor, skipping (len = {0} - 2)", len);
-                    file.Seek(len - 2, SeekOrigin.Current); continue;
+                    file.Seek(len - 2, SeekOrigin.Current);
+                    len = reader.ReadByte(); type = reader.ReadByte();
                 }
                 if (type != 0x05) {
                     Log.Debug("!! USB_DT_ENDPOINT fail (value = {0:X2})", type);
@@ -140,8 +142,8 @@ public class Linux : IHandler, IDisposable {
         
         file.Dispose();
         if (!found) throw new InvalidOperationException("Failed to find valid endpoints!");
-        Log.Debug("Interface: 0x{0:X2}, Read Endpoint: 0x{1:X2}, Write Endpoint: 0x{2:X2}",
-            _interface, _readEndpoint, _writeEndpoint);
+        Log.Debug("Interface: 0x{0:X2}, Alternate: 0x{1:X2}, Read Endpoint: 0x{2:X2}, Write Endpoint: 0x{3:X2}",
+            _interface, _alternate, _readEndpoint, _writeEndpoint);
 
         // Return in case of direct
         if (direct != null) return;
@@ -149,18 +151,14 @@ public class Linux : IHandler, IDisposable {
         // Create a device file handle
         if ((_deviceFd = Interop.Open(path, Interop.O_RDWR)) < 0)
             Interop.HandleError("Failed to open the device for RW");
-        
-        // Reset USB device
-        var zeroRef = 0u;
-        if (Interop.IoCtl(_deviceFd.Value, Interop.USBDEVFS_RESET, ref zeroRef) < 0)
-            Interop.HandleError("Failed to reset USB device");
-        
+
         // Detach kernel driver if present
         var driver = new Interop.GetDriver {
             Interface = (int)_interface
         };
         
         if (Interop.IoCtl(_deviceFd.Value, Interop.USBDEVFS_GETDRIVER, ref driver) > 0) {
+            Log.Debug("Kernel driver detected, detaching it!");
             var ioctl = new Interop.UsbIoCtl {
                 CommandCode = (int)Interop.USBDEVFS_DISCONNECT,
                 Interface = (int)_interface,
@@ -172,7 +170,7 @@ public class Linux : IHandler, IDisposable {
             
             _detached = true;
         }
-
+        
         // Claim interface
         if (Interop.IoCtl(_deviceFd.Value, Interop.USBDEVFS_CLAIMINTERFACE, ref _interface) < 0)
             Interop.HandleError("Failed to claim interface");
@@ -249,26 +247,33 @@ public class Linux : IHandler, IDisposable {
     
     public void Dispose() {
         // Release the interface
-        if (_connected && _deviceFd.HasValue)
-            if (Interop.IoCtl(_deviceFd.Value, Interop.USBDEVFS_RELEASEINTERFACE, ref _interface) < 0)
-                Interop.HandleError("Failed to release interface");
+        try {
+            if (_connected && _deviceFd.HasValue)
+                if (Interop.IoCtl(_deviceFd.Value, Interop.USBDEVFS_RELEASEINTERFACE, ref _interface) < 0)
+                    Interop.HandleError("Failed to release interface");
+        } catch { /* Ignored */ }
 
         // Attach the kernel driver back
-        if (_detached) {
-            var ioctl = new Interop.UsbIoCtl {
-                CommandCode = (int)Interop.USBDEVFS_CONNECT,
-                Interface = (int)_interface,
-                Data = nint.Zero
-            };
-            if (Interop.IoCtl(_deviceFd!.Value, Interop.USBDEVFS_IOCTL, ref ioctl) < 0)
-                Interop.HandleError("Failed to attach kernel driver");
-        }
-        
+        try {
+            if (_detached) {
+                var ioctl = new Interop.UsbIoCtl {
+                    CommandCode = (int)Interop.USBDEVFS_CONNECT,
+                    Interface = (int)_interface,
+                    Data = nint.Zero
+                };
+                if (Interop.IoCtl(_deviceFd!.Value, Interop.USBDEVFS_IOCTL, ref ioctl) < 0)
+                    Interop.HandleError("Failed to attach kernel driver");
+            }
+        } catch { /* Ignored */ }
+
         // Close device file handle
-        if (_deviceFd.HasValue && Interop.Close(_deviceFd.Value) < 0)
-            Interop.HandleError("Failed to close device descriptor");
+        try {
+            if (_deviceFd.HasValue && Interop.Close(_deviceFd.Value) < 0)
+                Interop.HandleError("Failed to close device descriptor");
+        } catch { /* Ignored */ }
 
         _connected = false;
+        _detached = false;
     }
 
     public static unsafe class Interop {
@@ -291,11 +296,12 @@ public class Linux : IHandler, IDisposable {
         private static uint _IOW(uint type, uint nr, uint size)
             => (1U << _IOC_DIRSHIFT) | (type << _IOC_TYPESHIFT) 
                                      | (nr << _IOC_NRSHIFT) | (size << _IOC_SIZESHIFT);
+        public static uint USBDEVFS_SETINTERFACE = _IOR('U', 4, (uint)sizeof(SetInterface));
+        public static uint USBDEVFS_GETDRIVER = _IOW('U', 8, (uint)sizeof(GetDriver));
         public static uint USBDEVFS_BULK = _IOWR('U', 2, (uint)sizeof(BulkTransfer));
         public static uint USBDEVFS_IOCTL = _IOWR('U', 18, (uint)sizeof(UsbIoCtl));
-        public static uint USBDEVFS_CLAIMINTERFACE = _IOR('U', 15, sizeof(uint));
         public static uint USBDEVFS_RELEASEINTERFACE = _IOR('U', 16, sizeof(uint));
-        public static uint USBDEVFS_GETDRIVER = _IOW('U', 8, (uint)sizeof(GetDriver));
+        public static uint USBDEVFS_CLAIMINTERFACE = _IOR('U', 15, sizeof(uint));
         public static uint USBDEVFS_DISCONNECT = _IO('U', 22);
         public static uint USBDEVFS_CONNECT = _IO('U', 23);
         public static uint USBDEVFS_RESET = _IO('U', 20);
@@ -305,6 +311,11 @@ public class Linux : IHandler, IDisposable {
             public uint Length;
             public uint Timeout;
             public nint Data;
+        }
+        
+        public struct SetInterface {
+            public uint Interface;
+            public uint Alternate;
         }
 
         public struct GetDriver {
@@ -337,7 +348,13 @@ public class Linux : IHandler, IDisposable {
         public static extern int IoCtl(int fd, ulong request, ref GetDriver driver);
         
         [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
+        public static extern int IoCtl(int fd, ulong request, ref SetInterface ioctl);
+
+        [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
         public static extern int IoCtl(int fd, ulong request, ref uint iface);
+        
+        [DllImport("libc", EntryPoint = "ioctl", SetLastError = true)]
+        public static extern int IoCtl(int fd, ulong request, nint ptr);
         
         [DllImport("libc", EntryPoint = "strerror")]
         public static extern nint StrError(int code);
