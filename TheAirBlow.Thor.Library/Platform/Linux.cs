@@ -150,6 +150,11 @@ public class Linux : IHandler, IDisposable {
         if ((_deviceFd = Interop.Open(path, Interop.O_RDWR)) < 0)
             Interop.HandleError("Failed to open the device for RW");
         
+        // Reset USB device
+        var zeroRef = 0u;
+        if (Interop.IoCtl(_deviceFd.Value, Interop.USBDEVFS_RESET, ref zeroRef) < 0)
+            Interop.HandleError("Failed to reset USB device");
+        
         // Detach kernel driver if present
         var driver = new Interop.GetDriver {
             Interface = (int)_interface
@@ -293,6 +298,7 @@ public class Linux : IHandler, IDisposable {
         public static uint USBDEVFS_GETDRIVER = _IOW('U', 8, (uint)sizeof(GetDriver));
         public static uint USBDEVFS_DISCONNECT = _IO('U', 22);
         public static uint USBDEVFS_CONNECT = _IO('U', 23);
+        public static uint USBDEVFS_RESET = _IO('U', 20);
 
         public struct BulkTransfer {
             public uint Endpoint;
