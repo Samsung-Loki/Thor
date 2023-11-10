@@ -2,7 +2,7 @@ using Serilog;
 using Spectre.Console;
 using TheAirBlow.Thor.Library.Protocols;
 
-namespace ThorRewrite.Shell.Commands.ProtoOdin; 
+namespace TheAirBlow.Thor.Shell.Commands.ProtoOdin; 
 
 public class FactoryReset : ICommand {
     public FailInfo RunCommand(State state, List<string> args) {

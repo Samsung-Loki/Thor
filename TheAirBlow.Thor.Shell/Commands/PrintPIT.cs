@@ -1,10 +1,8 @@
 using Serilog;
 using Spectre.Console;
-using Spectre.Console.Rendering;
 using TheAirBlow.Thor.Library.PIT;
-using TheAirBlow.Thor.Library.Protocols;
 
-namespace ThorRewrite.Shell.Commands; 
+namespace TheAirBlow.Thor.Shell.Commands; 
 
 public class PrintPIT : ICommand {
     public FailInfo RunCommand(State state, List<string> args) {
@@ -30,13 +28,13 @@ public class PrintPIT : ICommand {
                 var node = root.AddNode($"[darkorange]Entry #{i}[/]");
                 var entry = data.Entries[i];
                 node.AddNode($"[lime]{mapper.UpdateAttributes[0]}: " +
-                             $"{mapper.UpdateAttributes[entry.UpdateAttributes + 1]} ({entry.UpdateAttributes})[/]");
+                             $"{mapper.UpdateAttributes.GetMapping(entry.UpdateAttributes + 1)} ({entry.UpdateAttributes})[/]");
                 node.AddNode($"[lime]{mapper.Attributes[0]}: " +
-                             $"{mapper.Attributes[entry.Attributes + 1]} ({entry.Attributes})[/]");
+                             $"{mapper.Attributes.GetMapping(entry.Attributes + 1)} ({entry.Attributes})[/]");
                 node.AddNode($"[lime]{mapper.BinaryType[0]}: " +
-                             $"{mapper.BinaryType[entry.BinaryType + 1]} ({entry.BinaryType})[/]");
+                             $"{mapper.BinaryType.GetMapping(entry.BinaryType + 1)} ({entry.BinaryType})[/]");
                 node.AddNode($"[lime]{mapper.DeviceType[0]}: " +
-                             $"{mapper.DeviceType[entry.DeviceType + 1]} ({entry.DeviceType})[/]");
+                             $"{mapper.DeviceType.GetMapping(entry.DeviceType + 1)} ({entry.DeviceType})[/]");
                 node.AddNode($"[lime]{mapper.BlockSize}: {entry.BlockSize}[/]");
                 node.AddNode($"[lime]{mapper.BlockCount}: {entry.BlockCount}[/]");
                 node.AddNode($"[lime]Partition Name: {entry.Partition}[/]");
@@ -46,7 +44,7 @@ public class PrintPIT : ICommand {
                 node.AddNode($"[lime]File Name: {entry.FileName}[/]");
                 node.AddNode(!string.IsNullOrWhiteSpace(entry.DeltaName)
                     ? $"[lime]Delta Name: {entry.DeltaName}[/]"
-                    : $"[lime]Empty Delta Name[/]");
+                    : "[lime]Empty Delta Name[/]");
             }
 
             AnsiConsole.Write(root);

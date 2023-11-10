@@ -1,6 +1,6 @@
 namespace TheAirBlow.Thor.Library.PIT; 
 
-public class FieldMapper {
+public static class FieldMapper {
     public class Mapper {
         public string[] BinaryType;
         public string[] DeviceType;
@@ -67,4 +67,13 @@ public class FieldMapper {
             "Secure FOTA"
         }, "Block Size",
         "Block Count");
+    
+    /// <summary>
+    /// Get mapped string with fallback
+    /// </summary>
+    /// <param name="array">Array</param>
+    /// <param name="index">Index</param>
+    /// <returns>Mapped string</returns>
+    public static string GetMapping(this string[] array, int index)
+        => index > array.Length ? "Unknown" : array[index];
 }

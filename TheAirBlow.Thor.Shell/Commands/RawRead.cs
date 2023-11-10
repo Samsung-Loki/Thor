@@ -2,7 +2,7 @@ using System.Text;
 using Serilog;
 using Spectre.Console;
 
-namespace ThorRewrite.Shell.Commands; 
+namespace TheAirBlow.Thor.Shell.Commands; 
 
 public class RawRead : ICommand {
     public FailInfo RunCommand(State state, List<string> args) {

@@ -6,7 +6,6 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <RootNamespace>ThorRewrite.Shell</RootNamespace>
         <Version>1.0.4</Version>
     </PropertyGroup>
 

@@ -2,7 +2,7 @@ using Serilog;
 using Spectre.Console;
 using TheAirBlow.Thor.Library;
 
-namespace ThorRewrite.Shell.Commands; 
+namespace TheAirBlow.Thor.Shell.Commands; 
 
 public class Connect : ICommand {
     public FailInfo RunCommand(State state, List<string> args) {

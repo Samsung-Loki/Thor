@@ -1,7 +1,7 @@
 using Serilog;
 using TheAirBlow.Thor.Library.Protocols;
 
-namespace ThorRewrite.Shell.Commands.ProtoOdin;
+namespace TheAirBlow.Thor.Shell.Commands.ProtoOdin;
 
 public class SetRegion : ICommand {
     public FailInfo RunCommand(State state, List<string> args) {

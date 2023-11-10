@@ -1,7 +1,7 @@
 using Serilog;
 using Spectre.Console;
 
-namespace ThorRewrite.Shell.Commands; 
+namespace TheAirBlow.Thor.Shell.Commands; 
 
 public class EnableDebug : ICommand {
     public FailInfo RunCommand(State state, List<string> args) {

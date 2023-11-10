@@ -1,6 +1,6 @@
 using Serilog;
 
-namespace ThorRewrite.Shell.Commands; 
+namespace TheAirBlow.Thor.Shell.Commands; 
 
 public class DevParse : ICommand {
     public FailInfo RunCommand(State state, List<string> args) {

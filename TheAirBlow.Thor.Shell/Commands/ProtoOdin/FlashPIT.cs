@@ -2,7 +2,7 @@ using Serilog;
 using TheAirBlow.Thor.Library.PIT;
 using TheAirBlow.Thor.Library.Protocols;
 
-namespace ThorRewrite.Shell.Commands.ProtoOdin; 
+namespace TheAirBlow.Thor.Shell.Commands.ProtoOdin; 
 
 public class FlashPIT : ICommand {
     public FailInfo RunCommand(State state, List<string> args) {

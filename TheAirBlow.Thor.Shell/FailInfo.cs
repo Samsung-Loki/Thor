@@ -1,6 +1,6 @@
 using Spectre.Console;
 
-namespace ThorRewrite.Shell; 
+namespace TheAirBlow.Thor.Shell; 
 
 public class FailInfo {
     public bool Failed { get; }

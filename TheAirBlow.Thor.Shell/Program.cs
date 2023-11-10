@@ -3,11 +3,11 @@ using Spectre.Console;
 using TheAirBlow.Thor.Library;
 using TheAirBlow.Thor.Library.Communication;
 using TheAirBlow.Thor.Library.Protocols;
-using ThorRewrite.Shell;
-using ThorRewrite.Shell.Commands;
-using ThorRewrite.Shell.Commands.ProtoOdin;
-using PrintPIT = ThorRewrite.Shell.Commands.PrintPIT;
-using RawWrite = ThorRewrite.Shell.Commands.RawWrite;
+using TheAirBlow.Thor.Shell;
+using TheAirBlow.Thor.Shell.Commands;
+using TheAirBlow.Thor.Shell.Commands.ProtoOdin;
+using PrintPIT = TheAirBlow.Thor.Shell.Commands.PrintPIT;
+using RawWrite = TheAirBlow.Thor.Shell.Commands.RawWrite;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -57,8 +57,8 @@ Dictionary<string, ICommand> commands = new() {
 Dictionary<Protocol, Dictionary<string, ICommand>> protoCommands = new() {
     { Protocol.None, new Dictionary<string, ICommand>() },
     { Protocol.Odin, new Dictionary<string, ICommand> {
-        { "printPit", new ThorRewrite.Shell.Commands.ProtoOdin.PrintPIT() },
-        { "write", new ThorRewrite.Shell.Commands.ProtoOdin.RawWrite() },
+        { "printPit", new TheAirBlow.Thor.Shell.Commands.ProtoOdin.PrintPIT() },
+        { "write", new TheAirBlow.Thor.Shell.Commands.ProtoOdin.RawWrite() },
         { "erasePartition", new ErasePartition() },
         { "factoryReset", new FactoryReset() },
         { "setRegion", new SetRegion() },

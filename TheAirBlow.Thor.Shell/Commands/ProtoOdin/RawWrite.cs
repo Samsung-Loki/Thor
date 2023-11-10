@@ -2,7 +2,7 @@ using System.Text;
 using Serilog;
 using TheAirBlow.Thor.Library;
 
-namespace ThorRewrite.Shell.Commands.ProtoOdin; 
+namespace TheAirBlow.Thor.Shell.Commands.ProtoOdin; 
 
 public class RawWrite : ICommand {
     public FailInfo RunCommand(State state, List<string> args) {
