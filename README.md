@@ -13,8 +13,7 @@ To run this, you must have .NET 7 runtime installed on your computer. \
 3) Always try each option the platform-specific note tells you. In case of linux, try with cdc_asm disabled and enabled.
 
 ## Support me
-If you would like to support me and my team, donate [here](https://ko-fi.com/sussydev). \
-We're a team of teens (at age of 14-15) making random projects for fun.
+Please consider donating [here](https://ko-fi.com/sussydev) if you would like to support me and other projects of sussy.dev (team of young developers making random projects for fun)
 
 ## List of platforms
 1) [x] Linux (USB DevFS method)
@@ -54,39 +53,3 @@ Fun fact: Official Odin for Linux works using DevFS, and people report it workin
 <details>
   <summary>Flash a single partition</summary>
   <br>
-  <video src="https://github.com/Samsung-Loki/Thor/assets/68467762/f8f7e1dc-8c14-44c0-aaa7-85cf0c5cd024"/>
-</details>
-<details>
-  <summary>Print description of a device's partition table</summary>
-  <br>
-  <video src="https://github.com/Samsung-Loki/Thor/assets/68467762/0e1a3335-71ea-45e7-bbcd-a61a553f4943"/>
-</details>
-<details>
-  <summary>Dump device's partition table into a PIT file</summary>
-  <br>
-  <video src="https://github.com/Samsung-Loki/Thor/assets/68467762/ef6a5a67-c902-4af1-8de8-b5bbe4a3e9ef"/>
-</details>
-<details>
-  <summary>Print description of any PIT file</summary>
-  <br>
-  <video src="https://github.com/Samsung-Loki/Thor/assets/68467762/4d4f3ccc-380a-4557-93fa-a2cc1ee698bc"/>
-</details>
-
-## What devices were tested?
-1) SM-M205FN/DS from 2019 `0x00030000` (Unknown1: 0, Unknown2: 0, Version: 3)
-2) SM-G355H/DS from 2014 `0x00020000` (Unknown1: 0, Unknown2: 0, Version: 2)
-
-## Frequently Asked Questions
-1) A fatal error occurred. The required library *something* could not be found. \
-This is a Linux Package Mixup, use [this](https://github.com/Samsung-Loki/LegacyThor/issues/5) as reference.
-
-2) What happened to original Thor (or Hreidmar) \
-This is a rewrite of Thor written from scratch, so I could implement the native USB communication. \
-Also, the old codebase was severely flawed in my opinion. I archived it [here](https://github.com/Samsung-Loki/LegacyThor/).
-
-## Credits
-[TheAirBlow](https://github.com/theairblow) for Thor Flash Utility \
-[Benjamin-Dobell](https://github.com/Benjamin-Dobell) for documenting much of the Odin protocol
-
-## This project is licenced under
-[Mozilla Public License Version 2.0](https://github.com/Samsung-Loki/Thor/blob/main/LICENCE)
