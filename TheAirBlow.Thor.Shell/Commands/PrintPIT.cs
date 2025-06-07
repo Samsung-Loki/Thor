@@ -38,7 +38,7 @@ public class PrintPIT : ICommand {
                 node.AddNode($"[lime]{mapper.BlockSize}: {entry.BlockSize}[/]");
                 node.AddNode($"[lime]{mapper.BlockCount}: {entry.BlockCount}[/]");
                 node.AddNode($"[lime]Partition Name: {entry.Partition}[/]");
-                node.AddNode($"[lime]Partition ID: {entry.PartitionID}[/]");
+                node.AddNode($"[lime]Partition ID: {entry.PartitionId}[/]");
                 node.AddNode($"[lime]File Offset: {entry.FileOffset}[/]");
                 node.AddNode($"[lime]File Size: {entry.FileSize}[/]");
                 node.AddNode($"[lime]File Name: {entry.FileName}[/]");

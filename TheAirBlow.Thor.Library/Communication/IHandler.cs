@@ -2,7 +2,7 @@ namespace TheAirBlow.Thor.Library.Communication;
 
 public interface IHandler {
     public string GetNotes();
-    public Task<List<DeviceInfo>> GetDevices();
+    public List<DeviceInfo> GetDevices();
     public void Initialize(string? id, byte[]? direct = null);
     public bool IsConnected();
     public void Disconnect();

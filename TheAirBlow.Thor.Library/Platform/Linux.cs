@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using Serilog;
@@ -14,7 +15,7 @@ public class Linux : IHandler, IDisposable {
            "1) To temporarily unload, run \"sudo modprobe -r cdc_acm\"\n" +
            "2) To disable it, run \"echo 'blacklist cdc_acm' | sudo tee -a /etc/modprobe.d/cdc_acm-blacklist.conf\"";
 
-    public async Task<List<DeviceInfo>> GetDevices() {
+    public List<DeviceInfo> GetDevices() {
         var list = new List<DeviceInfo>();
         foreach (var bus in Directory.EnumerateDirectories("/dev/bus/usb/"))
         foreach (var device in Directory.EnumerateFiles(bus)) {
@@ -31,7 +32,7 @@ public class Linux : IHandler, IDisposable {
                 if (vendor == USB.Vendor) {
                     var product = reader.ReadInt16();
                     list.Add(new DeviceInfo {
-                        DisplayName = await Lookup.GetDisplayName(vendor, product),
+                        DisplayName = Lookup.GetDisplayName(vendor, product),
                         Identifier = device[13..].Replace("/", ":")
                     });
                 }
@@ -276,6 +277,8 @@ public class Linux : IHandler, IDisposable {
         _detached = false;
     }
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("ReSharper", "ShiftExpressionZeroLeftOperand")]
     public static unsafe class Interop {
         private const int _IOC_NRBITS = 8;
         private const int _IOC_TYPEBITS = 8;
@@ -296,15 +299,15 @@ public class Linux : IHandler, IDisposable {
         private static uint _IOW(uint type, uint nr, uint size)
             => (1U << _IOC_DIRSHIFT) | (type << _IOC_TYPESHIFT) 
                                      | (nr << _IOC_NRSHIFT) | (size << _IOC_SIZESHIFT);
-        public static uint USBDEVFS_SETINTERFACE = _IOR('U', 4, (uint)sizeof(SetInterface));
-        public static uint USBDEVFS_GETDRIVER = _IOW('U', 8, (uint)sizeof(GetDriver));
-        public static uint USBDEVFS_BULK = _IOWR('U', 2, (uint)sizeof(BulkTransfer));
-        public static uint USBDEVFS_IOCTL = _IOWR('U', 18, (uint)sizeof(UsbIoCtl));
-        public static uint USBDEVFS_RELEASEINTERFACE = _IOR('U', 16, sizeof(uint));
-        public static uint USBDEVFS_CLAIMINTERFACE = _IOR('U', 15, sizeof(uint));
-        public static uint USBDEVFS_DISCONNECT = _IO('U', 22);
-        public static uint USBDEVFS_CONNECT = _IO('U', 23);
-        public static uint USBDEVFS_RESET = _IO('U', 20);
+        public static readonly uint USBDEVFS_SETINTERFACE = _IOR('U', 4, (uint)Marshal.SizeOf<SetInterface>());
+        public static readonly uint USBDEVFS_GETDRIVER = _IOW('U', 8, (uint)Marshal.SizeOf<GetDriver>());
+        public static readonly uint USBDEVFS_BULK = _IOWR('U', 2, (uint)Marshal.SizeOf<BulkTransfer>());
+        public static readonly uint USBDEVFS_IOCTL = _IOWR('U', 18, (uint)Marshal.SizeOf<UsbIoCtl>());
+        public static readonly uint USBDEVFS_RELEASEINTERFACE = _IOR('U', 16, sizeof(uint));
+        public static readonly uint USBDEVFS_CLAIMINTERFACE = _IOR('U', 15, sizeof(uint));
+        public static readonly uint USBDEVFS_DISCONNECT = _IO('U', 22);
+        public static readonly uint USBDEVFS_CONNECT = _IO('U', 23);
+        public static readonly uint USBDEVFS_RESET = _IO('U', 20);
 
         public struct BulkTransfer {
             public uint Endpoint;

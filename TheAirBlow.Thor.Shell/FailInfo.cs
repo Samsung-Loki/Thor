@@ -4,8 +4,8 @@ namespace TheAirBlow.Thor.Shell;
 
 public class FailInfo {
     public bool Failed { get; }
-    private readonly string _description;
-    private readonly int _argument;
+    private readonly string? _description;
+    private readonly int? _argument;
 
     public FailInfo(string desc, int arg) {
         _description = desc; 

@@ -11,7 +11,7 @@ public class Connect : ICommand {
         if (state.Handler.IsConnected())
             return new FailInfo("Already connected to a device!", 0);
         try {
-            var devices = state.Handler.GetDevices().GetAwaiter().GetResult();
+            var devices = state.Handler.GetDevices();
             if (devices.Count == 0)
                 return new FailInfo("No Samsung devices were found!", 0);
             var list = devices.Select(x => $"{x.DisplayName.Ansify()} (ID {x.Identifier})").ToList();

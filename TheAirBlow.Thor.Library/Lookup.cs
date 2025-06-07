@@ -22,12 +22,12 @@ public static class Lookup {
             await File.WriteAllTextAsync("usb.ids", usbIds2);
             _split = usbIds2.Split("\n");
             return InitState.Cache;
-        } catch (Exception e) {
+        } catch {
             return InitState.Failed;
         }
     }
     
-    public static async Task<string> GetDisplayName(int vendorId, int productId) {
+    public static string GetDisplayName(int vendorId, int productId) {
         if (_split == null)
             return "Failed to load device name database";
         

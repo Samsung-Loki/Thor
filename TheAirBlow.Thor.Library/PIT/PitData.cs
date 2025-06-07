@@ -1,12 +1,12 @@
 namespace TheAirBlow.Thor.Library.PIT; 
 
 public class PitData {
-    public List<PitEntry> Entries = new();
-    public FieldMapper.Mapper Mapper;
-    public bool IsNewVersion;
-    public string Unknown;
-    public string Project;
-    public int Reserved;
+    public readonly List<PitEntry> Entries = [];
+    public FieldMapper.Mapper Mapper { get; set; } = null!;
+    public bool IsNewVersion { get; set; }
+    public string Unknown { get; set; } = "";
+    public string Project { get; set; } = "";
+    public int Reserved { get; set; }
 
     public PitData(byte[] content)
         => Parse(new MemoryStream(content));
@@ -29,7 +29,7 @@ public class PitData {
             var entry = new PitEntry {
                 BinaryType = reader.ReadInt32(),
                 DeviceType = reader.ReadInt32(),
-                PartitionID = reader.ReadInt32(),
+                PartitionId = reader.ReadInt32(),
                 Attributes = reader.ReadInt32(),
                 UpdateAttributes = reader.ReadInt32(),
                 BlockSize = reader.ReadInt32(),

@@ -223,7 +223,7 @@ public class Odin {
                 buf = _handler.BulkRead(500, out _);
                 Array.Copy(buf, 0, pitBuf, 
                     i*500, buf.Length);
-            } catch (Exception e) {
+            } catch {
                 Log.Debug("Failed to read block {0}", i);
                 throw;
             }
@@ -389,7 +389,7 @@ public class Odin {
                 buf.WriteInt(realSize, 12);
                 buf.WriteInt(entry.BinaryType, 16);
                 buf.WriteInt(entry.DeviceType, 20);
-                buf.WriteInt(entry.PartitionID, 24);
+                buf.WriteInt(entry.PartitionId, 24);
                 buf.WriteInt(last ? 1 : 0, 28);
                 buf.WriteInt(EfsClear ? 1 : 0, 32);
                 buf.WriteInt(BootloaderUpdate ? 1 : 0, 36);
