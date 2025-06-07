@@ -13,7 +13,7 @@ To run this, you must have .NET 7 runtime installed on your computer. \
 3) Always try each option the platform-specific note tells you. In case of linux, try with cdc_asm disabled and enabled.
 
 ## Support me
-Please consider donating [here](https://ko-fi.com/sussydev) if you would like to support me and other projects made by sussy.dev - like this one!
+Please consider donating [here](https://boosty.to/theairblow) if you would like to support me.
 
 ## List of platforms
 1) [x] Linux (USB DevFS method)
