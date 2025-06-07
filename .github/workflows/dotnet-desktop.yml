@@ -22,7 +22,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: Thor-Windows.exe
-          path: TheAirBlow.Thor.Shell/bin/Release/net9.0/win-x64/publish/Thor.exe
+          path: TheAirBlow.Thor.Shell/bin/Release/net9.0/win-x64/publish/TheAirBlow.Thor.Shell.exe
   build-linux:
     name: Linux Build
     runs-on: ubuntu-latest
@@ -40,7 +40,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: Thor-Linux
-          path: TheAirBlow.Thor.Shell/bin/Release/net9.0/linux-x64/publish/Thor
+          path: TheAirBlow.Thor.Shell/bin/Release/net9.0/linux-x64/publish/TheAirBlow.Thor.Shell
   build-macos:
     name: MacOS Build
     runs-on: macos-latest
@@ -58,4 +58,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: Thor-MacOS
-          path: TheAirBlow.Thor.Shell/bin/Release/net9.0/osx-x64/publish/Thor
+          path: TheAirBlow.Thor.Shell/bin/Release/net9.0/osx-x64/publish/TheAirBlow.Thor.Shell
